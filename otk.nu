@@ -25,9 +25,17 @@ export def ask [
   --select-model (-s) # Select model from running
 ] {
   let model = if $select_model { select-model } else { "orca-mini" }
-  http post -t application/json (create-url "generate") {
+  let response = (http post -t application/json (create-url "generate") {
     model: $model
     prompt: $prompt
     stream: $stream
-  }
+  })
+  $response | 
+    merge (
+      $response | 
+      select ($response | columns | filter {'duration' in $in}) | 
+      transpose | 
+      update column1 {into duration} | 
+      transpose --header-row | into record) | 
+    update created_at {into datetime}
 }
