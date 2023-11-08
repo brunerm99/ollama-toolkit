@@ -23,8 +23,9 @@ export def ask [
   prompt: string # Prompt for model
   --stream # Stream data
   --select-model (-s) # Select model from running
+  --model (-m): string = "orca-mini" # Model
 ] {
-  let model = if $select_model { select-model } else { "orca-mini" }
+  let model = if $select_model { select-model } else { $model }
   let response = (http post -t application/json (create-url "generate") {
     model: $model
     prompt: $prompt
